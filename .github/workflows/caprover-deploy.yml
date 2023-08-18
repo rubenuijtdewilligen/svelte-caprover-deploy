@@ -1,0 +1,26 @@
+name: Build & Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      - name: Publish Docker Image
+        uses: matootie/github-docker@v3.1.0
+        with:
+          accessToken: ${{ github.token }}
+          containerRegistry: true
+      - name: Deploy on CapRover
+        uses: caprover/deploy-from-github@v1.1.2
+        with:
+          server: ${{ secrets.CAPROVER_SERVER }}
+          app: '${{ secrets.APP_NAME }}'
+          token: '${{ secrets.APP_TOKEN }}' # Found on the CapRover deploy page
+          image: 'ghcr.io/${{ secrets.GHCR }}:latest' # Example: user/app
